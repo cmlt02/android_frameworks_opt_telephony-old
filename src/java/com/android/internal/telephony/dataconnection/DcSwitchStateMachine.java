@@ -138,13 +138,7 @@ public class DcSwitchStateMachine extends StateMachine {
                         log("IdleState: EVENT_DATA_ATTACHED");
                     }
 
-                    int dataRat = mPhone.getServiceState().getRilDataRadioTechnology();
-                    if (dataRat == ServiceState.RIL_RADIO_TECHNOLOGY_IWLAN) {
-                        if (DBG) {
-                            log("IdleState: IWLAN reported in IDLE state");
-                        }
-                        transitionTo(mAttachedState);
-                    } else if (DctController.getInstance().isDataAllowedOnPhoneId(mId)) {
+                    if (DctController.getInstance().isDataAllowedOnPhoneId(mId)) {
                         if (DBG) {
                             log("IdleState: DDS sub reported ATTACHed in IDLE state");
                         }
@@ -453,21 +447,7 @@ public class DcSwitchStateMachine extends StateMachine {
                     apnRequest.log("DcSwitchStateMachine.AttachedState: REQ_CONNECT");
                     if (DBG) log("AttachedState: REQ_CONNECT, apnRequest=" + apnRequest);
 
-                    int dataRat = mPhone.getServiceState().getRilDataRadioTechnology();
-                    if (dataRat == ServiceState.RIL_RADIO_TECHNOLOGY_IWLAN) {
-                        SubscriptionController subController = SubscriptionController.getInstance();
-                        int ddsSubId = subController.getDefaultDataSubId();
-                        int ddsPhoneId = subController.getPhoneId(ddsSubId);
-                        if (mId == ddsPhoneId) {
-                            logd("AttachedState: Already attached on IWLAN. " +
-                                    "Retry Allow Data for Dds switch");
-                            transitionTo(mAttachingState);
-                        } else {
-                            DctController.getInstance().executeRequest(apnRequest);
-                        }
-                    } else {
-                        DctController.getInstance().executeRequest(apnRequest);
-                    }
+                    DctController.getInstance().executeRequest(apnRequest);
                     retVal = HANDLED;
                     break;
                 }
